@@ -6,6 +6,8 @@ import dev.langchain4j.mcp.client.DefaultMcpClient;
 import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
+import dev.langchain4j.mcp.resourcesastools.DefaultMcpResourcesAsToolsPresenter;
+import dev.langchain4j.mcp.resourcesastools.McpResourcesAsToolsPresenter;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 import org.slf4j.Logger;
@@ -26,6 +28,7 @@ public class MainApp {
                 .key("Finance MCP")
                 .transport(transport)
                 .build();
+
 
         McpToolProvider toolProvider = McpToolProvider.builder()
                 .mcpClients(mcpClient)
