@@ -72,6 +72,10 @@
             <version>1.8.4</version>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client-oidc-token-propagation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-oidc-mcp-auth-provider</artifactId>
             <version>1.8.4</version>
