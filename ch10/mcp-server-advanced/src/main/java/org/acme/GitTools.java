@@ -1,7 +1,11 @@
 package org.acme;
 
 
-import io.quarkiverse.mcp.server.*;
+import io.quarkiverse.mcp.server.Root;
+import io.quarkiverse.mcp.server.Roots;
+import io.quarkiverse.mcp.server.Tool;
+import io.quarkiverse.mcp.server.ToolArg;
+import io.quarkiverse.mcp.server.ToolGuardrails;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;
 import org.eclipse.jgit.api.Git;

@@ -9,7 +9,7 @@ public class SecuredTool {
 
     public record Customer(String name){}
 
-    @Tool(description = "Gets customers data")
+    @Tool(name = "customers", description = "Gets customers data")
     @Authenticated
     Set<Customer> findCustomers() {
 
