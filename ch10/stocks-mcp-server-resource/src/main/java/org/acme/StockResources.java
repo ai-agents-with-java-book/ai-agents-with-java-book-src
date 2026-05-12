@@ -1,33 +1,49 @@
 package org.acme;
 
 
+import io.quarkiverse.mcp.server.Resource;
 import io.quarkiverse.mcp.server.ResourceManager;
 import io.quarkiverse.mcp.server.ResourceTemplate;
 import io.quarkiverse.mcp.server.TextResourceContents;
+import io.quarkus.scheduler.Scheduled;
 import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class StockResources {
 
-  private Map<String, String> stocks = Map.of("IBM", "262.0");
+  private static Map<String, Double> stocks = new HashMap<>();
+
+  static {
+    stocks.put("IBM", 262.0);
+  }
+
+  @Inject
+  Logger logger;
 
   @Inject
   ResourceManager resourceManager;
 
-  @ResourceTemplate(
+  @Resource(
       name = "stocks",
-      description = "Get stock value by ticker",
-      uriTemplate = "http://stocks/{ticker}")
-  public TextResourceContents getStocks(String ticker) {
+      description = "Get IBM stock value",
+      uri = "http://stocks/IBM")
+  public TextResourceContents getStock() {
     return TextResourceContents.create(
-        "http://stocks/" + ticker,
-        stocks.getOrDefault(ticker, "-1")
+        "http://stocks/IBM",
+        stocks.getOrDefault("IBM", -1d)
+            .toString()
     );
   }
 
-  public void updateStockValue(String ticker, String value) {
-    stocks.put(ticker, value);
-    resourceManager.getResource("http://stocks/" + ticker).sendUpdateAndForget();
+  @Scheduled(every = "15s")
+  public void updateStockValue() {
+    logger.info("Updating Stocks");
+
+    Double ibm = stocks.get("IBM");
+    stocks.put("IBM", ibm + 10);
+    resourceManager.getResource("http://stocks/IBM").sendUpdateAndForget();
   }
 }
