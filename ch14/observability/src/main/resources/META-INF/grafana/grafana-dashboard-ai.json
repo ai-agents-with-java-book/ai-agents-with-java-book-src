@@ -1,0 +1,43 @@
+{
+  "title":"AI Dashboard",
+  "tags":[
+    "Quarkus",
+    "LangChain4j",
+    "AI",
+    "Micrometer"
+  ],
+  "panels":[
+    {
+      "type":"timeseries",
+      "title":"Token Usage Over Time",
+      "targets":[
+        {
+          "expr":"llm_token_input_count_tokens_total{appName=\"expert-chatbot\"}"
+        },
+        {
+          "expr":"llm_token_output_count_tokens_total{appName=\"expert-chatbot\"}"
+        }
+      ]
+    },
+    {
+      "type":"stat",
+      "title":"Total Token Count",
+      "targets":[
+        {
+          "expr":"llm_token_count_tokens_total{appName=\"expert-chatbot\"}"
+        }
+      ]
+    },
+    {
+      "type":"stat",
+      "title":"Estimated Token Cost (USD)",
+      "targets":[
+        {
+          "expr":"((llm_token_input_count_tokens_total{appName=\"expert-chatbot\"}/1000000)*0.0005) + ((llm_token_output_count_tokens_total{appName=\"expert-chatbot\"}/1000000)*0.0005)"
+        }
+      ]
+    }
+  ],
+  "schemaVersion":41,
+  "version":1
+}
