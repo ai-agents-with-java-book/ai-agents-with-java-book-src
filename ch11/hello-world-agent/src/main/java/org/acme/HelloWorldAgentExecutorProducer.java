@@ -15,7 +15,6 @@ import org.a2aproject.sdk.spec.TaskState;
 import org.a2aproject.sdk.spec.TextPart;
 import org.jboss.logging.Logger;
 
-
 import java.util.List;
 
 @ApplicationScoped
@@ -30,21 +29,27 @@ public class HelloWorldAgentExecutorProducer {
             @Override
             public void execute(RequestContext context, AgentEmitter emitter) throws A2AError {
 
-                String userMessage = extractTextFromMessage(context.getMessage());
-                logger.infof("Received Message from Client Agent: %s", userMessage);
+                String response = extractTextFromMessage(context.getMessage());
+                logger.infof("Received Message from Client Agent: %s", response);
 
-                emitter.submit();
-                emitter.sendMessage("Step 1: Creates Hello Message");
-
+                // Use status updates (with an optional message) for intermediate progress.
+                // emitter.sendMessage() emits a Message event which the SDK treats as a
+                // final/terminal event and immediately closes the SSE stream.
+                Message step1Msg = emitter.messageBuilder()
+                        .parts(List.of(new TextPart("Step 1: Creates Hello Message")))
+                        .build();
+                emitter.startWork(step1Msg);
                 logger.info("Finished Step 1");
 
-                String response = "Hello World";
+                response = response.concat("*");
 
-                emitter.sendMessage("Step 2: Process Hello Message");
-
+                Message step2Msg = emitter.messageBuilder()
+                        .parts(List.of(new TextPart("Step 2: Process Hello Message")))
+                        .build();
+                emitter.updateStatus(TaskState.TASK_STATE_WORKING, step2Msg);
                 logger.info("Finished Step 2");
 
-                response = response.toLowerCase();
+                response = response.toUpperCase();
 
                 TextPart responsePart = new TextPart(response);
                 List<Part<?>> parts = List.of(responsePart);
