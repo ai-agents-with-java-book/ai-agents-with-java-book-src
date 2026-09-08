@@ -9,7 +9,7 @@ import jakarta.ws.rs.Path;
 public class GreetingResource {
 
     @Inject
-    HelloWorldAgent helloWorldAgent;
+    HelloWorldAgentSec helloWorldAgent;
 
     @GET
     public String hello() {
