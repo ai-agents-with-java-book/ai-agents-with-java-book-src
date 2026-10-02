@@ -53,13 +53,9 @@ public class MainApp {
     private static Assistant createAssistant(String documentPath) {
 
 
-        String apiKey = System.getenv("OPENAI_API_KEY");
-        if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalStateException("Set OPENAI_API_KEY before running");
-        }
-
         ChatModel chatModel = OpenAiChatModel.builder()
-                .apiKey(apiKey)
+                .apiKey("demo")
+                .baseUrl("http://langchain4j.dev/demo/openai/v1")
                 .modelName(GPT_4_O_MINI)
                 .build();
 

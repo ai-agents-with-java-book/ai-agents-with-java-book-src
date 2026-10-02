@@ -28,13 +28,9 @@ import dev.langchain4j.data.segment.TextSegment;
 public class MainApp {
     public static void main(String[] args) {
 
-        String apiKey = System.getenv("OPENAI_API_KEY");
-        if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalStateException("Set OPENAI_API_KEY before running");
-        }
-
         ChatModel chatModel = OpenAiChatModel.builder()
-                .apiKey(apiKey)
+                .apiKey("demo")
+                .baseUrl("http://langchain4j.dev/demo/openai/v1")
                 .modelName(GPT_4_O_MINI)
                 .build();
 

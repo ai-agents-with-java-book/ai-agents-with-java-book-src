@@ -12,21 +12,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.33.2</quarkus.platform.version>
-        <langchain4j.version>1.20.0</langchain4j.version>
+        <quarkus.platform.version>3.29.0</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>dev.langchain4j</groupId>
-                <artifactId>langchain4j-bom</artifactId>
-                <version>${langchain4j.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <dependency>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>${quarkus.platform.artifact-id}</artifactId>
@@ -37,7 +29,7 @@
             <dependency>
                 <groupId>io.quarkiverse.langchain4j</groupId>
                 <artifactId>quarkus-langchain4j-bom</artifactId>
-                <version>1.13.1</version>
+                <version>1.4.0.CR1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -52,6 +44,7 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-embeddings-bge-small-en-v15-q</artifactId>
+            <version>1.8.0-beta15</version>
         </dependency>
         <dependency>
             <groupId>io.quarkiverse.presidio</groupId>
@@ -72,7 +65,7 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit</artifactId>
+            <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
