@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Galaxium Travels — Support Tickets</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="site-header">
+        <div class="header-inner">
+          <div class="logo-area">
+            <svg class="star-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <polygon points="20,2 24.9,15.5 39,15.5 27.6,23.9 31.8,37.5 20,29.5 8.2,37.5 12.4,23.9 1,15.5 15.1,15.5" fill="#a78bfa" />
+            </svg>
+            <span class="logo-text">Galaxium Travels</span>
+          </div>
+          <div class="header-subtitle">Support Ticket Review Console</div>
+        </div>
+        <div class="ws-status" id="ws-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-label">Connecting…</span>
+        </div>
+      </header>
+
+      <!-- ── Tab navigation ──────────────────────────────────────────────── -->
+      <nav class="tab-nav" role="tablist">
+        <button class="tab-btn tab-active" role="tab" aria-selected="true"  aria-controls="panel-live"     id="tab-live">Live Tickets</button>
+        <button class="tab-btn"            role="tab" aria-selected="false" aria-controls="panel-recent"   id="tab-recent">List of last messages</button>
+      </nav>
+
+      <!-- ── Tab panel: Live Tickets ─────────────────────────────────────── -->
+      <main class="main-content tab-panel" id="panel-live" role="tabpanel" aria-labelledby="tab-live">
+        <div class="empty-state" id="empty-state">
+          <svg class="orbit-icon" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="30" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <circle cx="40" cy="10" r="5" fill="#a78bfa"/>
+            <circle cx="40" cy="40" r="8" fill="#1e1b4b"/>
+            <circle cx="40" cy="40" r="5" fill="#a78bfa" opacity="0.6"/>
+          </svg>
+          <p>Awaiting incoming support tickets from mission control…</p>
+        </div>
+        <div class="tickets-grid" id="tickets-grid"></div>
+      </main>
+
+      <!-- ── Tab panel: List of last messages ────────────────────────────── -->
+      <section class="main-content tab-panel tab-panel-hidden" id="panel-recent" role="tabpanel" aria-labelledby="tab-recent">
+        <div class="recent-header">
+          <button class="btn-refresh" id="btn-refresh">
+            <svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 0 1 1 1v2.5A7 7 0 0 1 17 10a1 1 0 1 1-2 0 5 5 0 0 0-9.192-2.695A1 1 0 0 1 4 7H1.5a1 1 0 0 1 0-2H4V3a1 1 0 0 1 1-1zm11 14a1 1 0 0 1-1-1v-2.5A7 7 0 0 1 3 10a1 1 0 1 1 2 0 5 5 0 0 0 9.192 2.695A1 1 0 0 1 16 13h2.5a1 1 0 0 1 0 2H16v2a1 1 0 0 1-1 1z" clip-rule="evenodd"/>
+            </svg>
+            Refresh
+          </button>
+        </div>
+        <div class="empty-state" id="recent-empty" style="display:none">
+          <svg class="orbit-icon" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="30" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <circle cx="40" cy="10" r="5" fill="#a78bfa"/>
+            <circle cx="40" cy="40" r="8" fill="#1e1b4b"/>
+            <circle cx="40" cy="40" r="5" fill="#a78bfa" opacity="0.6"/>
+          </svg>
+          <p>No recent messages found in the last 60 days.</p>
+        </div>
+        <div class="recent-loading" id="recent-loading">
+          <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+        </div>
+        <div class="incidences-list" id="incidences-list"></div>
+      </section>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

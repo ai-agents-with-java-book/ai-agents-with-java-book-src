@@ -1,0 +1,561 @@
+/* ── Reset & tokens ───────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --space-black:   #05040f;
+  --space-deep:    #0d0b22;
+  --space-card:    #13112e;
+  --space-border:  #2a255a;
+  --space-hover:   #1e1a42;
+  --nebula-purple: #a78bfa;
+  --nebula-light:  #c4b5fd;
+  --nebula-dim:    #6d4fc4;
+  --star-gold:     #fbbf24;
+  --comet-blue:    #60a5fa;
+  --red-alert:     #f87171;
+  --green-ok:      #34d399;
+  --text-primary:  #ede9fe;
+  --text-muted:    #8b7fc8;
+  --text-dim:      #5b5290;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── Starfield background ─────────────────────────────────────────────────── */
+body {
+  background-color: var(--space-black);
+  color: var(--text-primary);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 20% 15%, rgba(109, 79, 196, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, rgba(96, 165, 250, 0.10) 0%, transparent 50%),
+    radial-gradient(1px 1px at  8%  5%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 20% 18%, #c4b5fd 0%, transparent 100%),
+    radial-gradient(1px 1px at 33% 42%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 55%  9%, #c4b5fd 0%, transparent 100%),
+    radial-gradient(1px 1px at 67% 55%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 30%, #fbbf24 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 70%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 92% 15%, #c4b5fd 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 78%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at  3% 65%, #fbbf24 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 15% 90%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 72%  3%, #fff 0%, transparent 100%);
+}
+
+#app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1.25rem 0 1.5rem;
+  border-bottom: 1px solid var(--space-border);
+  margin-bottom: 2rem;
+}
+
+.header-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.star-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: linear-gradient(90deg, var(--nebula-light), var(--comet-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding-left: 2.2rem;
+}
+
+/* ── WS Status indicator ──────────────────────────────────────────────────── */
+.ws-status {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--space-deep);
+  border: 1px solid var(--space-border);
+  border-radius: 20px;
+  padding: 0.3rem 0.85rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+
+.dot-connected {
+  background: var(--green-ok);
+  box-shadow: 0 0 6px var(--green-ok);
+}
+
+.dot-disconnected {
+  background: var(--red-alert);
+  box-shadow: 0 0 6px var(--red-alert);
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 5rem 1rem;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+.orbit-icon {
+  width: 80px;
+  height: 80px;
+  opacity: 0.7;
+}
+
+/* ── Tickets grid ─────────────────────────────────────────────────────────── */
+.tickets-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+/* ── Ticket card ──────────────────────────────────────────────────────────── */
+.ticket-card {
+  background: var(--space-card);
+  border: 1px solid var(--space-border);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ticket-card:hover {
+  border-color: var(--nebula-dim);
+  box-shadow: 0 0 20px rgba(109, 79, 196, 0.15);
+}
+
+.ticket-card.card-sent {
+  border-color: var(--green-ok);
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.12);
+}
+
+/* ── Card header ──────────────────────────────────────────────────────────── */
+.ticket-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--space-border);
+}
+
+.ticket-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ticket-user {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--nebula-light);
+}
+
+.ticket-email {
+  font-size: 0.82rem;
+  color: var(--comet-blue);
+  text-decoration: none;
+}
+
+.ticket-email:hover {
+  text-decoration: underline;
+}
+
+.ticket-booking {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  background: var(--space-deep);
+  border: 1px solid var(--space-border);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+}
+
+/* ── Sentiment badges ─────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 0.2rem 0.55rem;
+}
+
+.badge-positive {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green-ok);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.badge-negative {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red-alert);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.badge-neutral {
+  background: rgba(251, 191, 36, 0.10);
+  color: var(--star-gold);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+/* ── Card sections ────────────────────────────────────────────────────────── */
+.ticket-section {
+  margin-bottom: 1.1rem;
+}
+
+.section-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.4rem;
+}
+
+.editable-hint {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--nebula-dim);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.customer-message {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  background: var(--space-deep);
+  border: 1px solid var(--space-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  line-height: 1.6;
+}
+
+.sentiment-reason {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding-left: 0.6rem;
+  border-left: 2px solid var(--nebula-dim);
+}
+
+/* ── Draft textarea ───────────────────────────────────────────────────────── */
+.draft-editor {
+  width: 100%;
+  background: var(--space-deep);
+  border: 1px solid var(--nebula-dim);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding: 0.75rem 1rem;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.draft-editor:focus {
+  border-color: var(--nebula-purple);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+}
+
+.draft-editor::placeholder {
+  color: var(--text-dim);
+}
+
+/* ── Card actions ─────────────────────────────────────────────────────────── */
+.ticket-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.send-feedback {
+  font-size: 0.82rem;
+  flex: 1;
+}
+
+.feedback-success {
+  color: var(--green-ok);
+}
+
+.feedback-error {
+  color: var(--red-alert);
+}
+
+/* ── Send button ──────────────────────────────────────────────────────────── */
+.btn-send {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: linear-gradient(135deg, #6d28d9, #4c1d95);
+  color: #ede9fe;
+  border: 1px solid var(--nebula-dim);
+  border-radius: 8px;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, opacity 0.2s;
+  white-space: nowrap;
+}
+
+.btn-send svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.btn-send:hover {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  box-shadow: 0 0 14px rgba(109, 79, 196, 0.5);
+}
+
+.btn-send:focus-visible {
+  outline: 2px solid var(--nebula-purple);
+  outline-offset: 2px;
+}
+
+.btn-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (min-width: 720px) {
+  .tickets-grid {
+    grid-template-columns: 1fr;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+}
+
+/* ── Tab navigation ───────────────────────────────────────────────────────── */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--space-border);
+  margin-bottom: 2rem;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 0.7rem 1.4rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  position: relative;
+  bottom: -1px;
+}
+
+.tab-btn:hover {
+  color: var(--nebula-light);
+}
+
+.tab-btn.tab-active {
+  color: var(--nebula-light);
+  border-bottom: 2px solid var(--nebula-purple);
+}
+
+/* ── Tab panels ───────────────────────────────────────────────────────────── */
+.tab-panel-hidden {
+  display: none !important;
+}
+
+/* ── Recent panel header ──────────────────────────────────────────────────── */
+.recent-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.25rem;
+}
+
+.btn-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--space-card);
+  border: 1px solid var(--space-border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-refresh svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.btn-refresh:hover {
+  border-color: var(--nebula-dim);
+  color: var(--nebula-light);
+}
+
+/* ── Loading dots ─────────────────────────────────────────────────────────── */
+.recent-loading {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 0;
+}
+
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--nebula-dim);
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse-dot {
+  0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+  40%            { opacity: 1;    transform: scale(1); }
+}
+
+/* ── Incidences list ──────────────────────────────────────────────────────── */
+.incidences-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.incidence-row {
+  background: var(--space-card);
+  border: 1px solid var(--space-border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.incidence-row:hover {
+  border-color: var(--nebula-dim);
+  box-shadow: 0 0 20px rgba(109, 79, 196, 0.15);
+}
+
+.incidence-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--space-border);
+}
+
+.incidence-date {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--star-gold);
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+}
+
+.incidence-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .incidence-body {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.incidence-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.incidence-response {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  background: var(--space-deep);
+  border: 1px solid var(--space-border);
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  line-height: 1.6;
+}
+
+.recent-fetch-error {
+  color: var(--red-alert);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem 0;
+}
