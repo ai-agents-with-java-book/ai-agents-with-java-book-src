@@ -52,7 +52,6 @@ public class MainApp {
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor
                 .builder()
                 .documentTransformer(transformer)
-                .documentSplitter(DocumentSplitters.recursive(300, 0))
                 .embeddingModel(embeddingModel)
                 .embeddingStore(embeddingStore)
                 .build();

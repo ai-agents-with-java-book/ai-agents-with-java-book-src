@@ -9,31 +9,22 @@
 
     <properties>
       <maven.compiler.release>21</maven.compiler.release>
-      <langchain4j.version>1.20.0</langchain4j.version>
     </properties>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>dev.langchain4j</groupId>
-                <artifactId>langchain4j-bom</artifactId>
-                <version>${langchain4j.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
+            <version>1.8.0</version>
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
+            <version>1.8.0</version>
         </dependency>
          <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-embeddings-bge-small-en-v15-q</artifactId>
+            <version>1.8.0-beta15</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
