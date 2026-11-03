@@ -20,6 +20,7 @@ Each project has its own `pom.xml` and dependencies. There is no root Maven buil
 | [ch11](ch11/) | Agent2Agent (A2A) clients and agents, human interaction, security, and replication |
 | [ch13](ch13/README.md) | Action policies, approval validation, context selection, audit events, and isolated Java execution |
 | [ch14/observability](ch14/observability/) | Agent tracing and metrics with OpenTelemetry, Grafana, and LangSmith |
+| [ch15/decision-models](ch15/decision-models/) | Decision models, decision services, decision agents, and the decision router and confidence cascade patterns |
 | [ch77](ch77/) | Embeddings, chunking, hybrid search, multimodal RAG, movie recommendations, and shopping question answering |
 
 This index follows the source directories in this checkout. Use the book alongside each example for its explanation and context.
@@ -82,6 +83,7 @@ There is no shared model configuration for the repository. Inspect the selected 
 - **Chapter 5:** Model providers read `OPENAI_API_KEY`; alternative provider code also references `CEREBRAS_API_KEY`.
 - **Demo-backed examples:** Several RAG, tool, and MCP examples configure the LangChain4j demo endpoint directly in source.
 - **Observability:** `ch14/observability` requires `OPENAI_API_KEY`. The LangSmith profile also uses `LANGSMITH_API_KEY`, with optional `LANGSMITH_PROJECT` and `LANGSMITH_OTLP_ENDPOINT` settings.
+- **Decision models:** the `main` classes of `ch15/decision-models` require `OPENAI_API_KEY`; its tests run offline against a stub decision model.
 
 ## Run Quarkus applications
 
