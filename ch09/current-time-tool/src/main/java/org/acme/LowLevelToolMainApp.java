@@ -2,12 +2,13 @@ package org.acme;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
-import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 
 import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
 
 import java.util.List;
+import java.util.ArrayList;
+import dev.langchain4j.data.message.ChatMessage;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,49 +33,44 @@ public class LowLevelToolMainApp {
                 .modelName(GPT_4_O_MINI)
                 .build();
 
-            run(clock, chatModel);
+            System.out.println(run(clock, chatModel));
     }
 
-    static void run(Clock clock, ChatModel chatModel) throws JsonProcessingException {
-            List<ToolSpecification> toolSpecifications = ToolSpecifications.toolSpecificationsFrom(Clock.class);
+    static final int MAX_TOOL_TURNS = 4;
 
-            UserMessage userMessage = UserMessage.from("What is the current date and time in Europe/Berlin?");
+    static String run(Clock clock, ChatModel chatModel)
+            throws JsonProcessingException {
+        List<ToolSpecification> toolSpecifications =
+                ToolSpecifications.toolSpecificationsFrom(Clock.class);
+        List<ChatMessage> messages = new ArrayList<>();
+        messages.add(UserMessage.from(
+                "What is the current date and time in Europe/Berlin?"));
+        ObjectMapper mapper = new ObjectMapper();
+
+        for (int turn = 0; turn < MAX_TOOL_TURNS; turn++) {
             ChatRequest request = ChatRequest.builder()
-                .messages(userMessage)
-                .toolSpecifications(toolSpecifications)
-                .build();
-            
-            ChatResponse response = chatModel.chat(request);
-
-            AiMessage aiMessage = response.aiMessage();
-
-            ObjectMapper mapper = new ObjectMapper();
-
-            if (aiMessage.hasToolExecutionRequests()) {
-                List<ToolExecutionRequest> toolExecutionRequests = aiMessage.toolExecutionRequests();
-                for (ToolExecutionRequest toolExecutionRequest : toolExecutionRequests) {
-                    if("getNow".equals(toolExecutionRequest.name())) {
-                        
-                        String arguments = toolExecutionRequest.arguments();
-                        System.out.println(arguments);
-                        Map<String, String> parsedArguments = mapper.readValue(arguments, Map.class);
-                        
-                        String result = clock.getNow(parsedArguments.get("timeZone"));
-
-                        ToolExecutionResultMessage toolExecutionResultMessage = ToolExecutionResultMessage.from(toolExecutionRequest, result);
-                        ChatRequest request2 = ChatRequest.builder()
-                                .messages(List.of(userMessage, aiMessage, toolExecutionResultMessage))
-                                .toolSpecifications(toolSpecifications)
-                                .build();
-                        
-                        ChatResponse response2 = chatModel.chat(request2);
-                        System.out.println(response2.aiMessage().text());
-
-
-                    }
-                }
+                    .messages(List.copyOf(messages))
+                    .toolSpecifications(toolSpecifications)
+                    .build();
+            AiMessage aiMessage = chatModel.chat(request).aiMessage();
+            messages.add(aiMessage);
+            if (!aiMessage.hasToolExecutionRequests()) {
+                return aiMessage.text();
             }
-
+            for (ToolExecutionRequest toolRequest
+                    : aiMessage.toolExecutionRequests()) {
+                String result;
+                if ("getNow".equals(toolRequest.name())) {
+                    Map<String, String> arguments = mapper.readValue(
+                            toolRequest.arguments(), Map.class);
+                    result = clock.getNow(arguments.get("timeZone"));
+                } else {
+                    result = "Unknown tool. Use an offered tool.";
+                }
+                messages.add(ToolExecutionResultMessage.from(
+                        toolRequest, result));
+            }
+        }
+        throw new IllegalStateException("Tool-turn limit reached");
     }
-
 }
