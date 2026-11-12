@@ -38,7 +38,7 @@ public class LowLevelToolMainApp {
     static void run(Clock clock, ChatModel chatModel) throws JsonProcessingException {
             List<ToolSpecification> toolSpecifications = ToolSpecifications.toolSpecificationsFrom(Clock.class);
 
-            UserMessage userMessage = UserMessage.from("I am the user id 1234 and I'd love to know my current date and time");
+            UserMessage userMessage = UserMessage.from("What is the current date and time in Europe/Berlin?");
             ChatRequest request = ChatRequest.builder()
                 .messages(userMessage)
                 .toolSpecifications(toolSpecifications)
@@ -59,7 +59,7 @@ public class LowLevelToolMainApp {
                         System.out.println(arguments);
                         Map<String, String> parsedArguments = mapper.readValue(arguments, Map.class);
                         
-                        String result = clock.getNow(parsedArguments.get("userId"));
+                        String result = clock.getNow(parsedArguments.get("timeZone"));
 
                         ToolExecutionResultMessage toolExecutionResultMessage = ToolExecutionResultMessage.from(toolExecutionRequest, result);
                         ChatRequest request2 = ChatRequest.builder()

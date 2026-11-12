@@ -22,7 +22,7 @@ public class MainApp {
                 .build();
 
             String r = assistant
-                .assist("I am the user id 1234 and I'd love to know my current date and time");
+                .assist("What is the current date and time in Europe/Berlin?");
             
             System.out.println(r);
 

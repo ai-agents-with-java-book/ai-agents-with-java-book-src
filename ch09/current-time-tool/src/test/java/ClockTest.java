@@ -11,18 +11,18 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class ClockTest {
 
     @Test
-    void omittedUserUsesTheSystemTimeZone() {
+    void omittedTimeZoneUsesTheSystemTimeZone() {
         assertCurrentTimeInZone(null, ZoneId.systemDefault());
     }
 
     @Test
-    void suppliedUserUsesTheExampleUserTimeZone() {
-        assertCurrentTimeInZone("1234", ZoneId.of("CET"));
+    void suppliedTimeZoneUsesTheRequestedTimeZone() {
+        assertCurrentTimeInZone("Europe/Berlin", ZoneId.of("Europe/Berlin"));
     }
 
-    private void assertCurrentTimeInZone(String userId, ZoneId expectedZone) {
+    private void assertCurrentTimeInZone(String timeZone, ZoneId expectedZone) {
         Instant before = Instant.now();
-        ZonedDateTime result = ZonedDateTime.parse(new Clock().getNow(userId));
+        ZonedDateTime result = ZonedDateTime.parse(new Clock().getNow(timeZone));
         Instant after = Instant.now();
 
         assertEquals(expectedZone, result.getZone());

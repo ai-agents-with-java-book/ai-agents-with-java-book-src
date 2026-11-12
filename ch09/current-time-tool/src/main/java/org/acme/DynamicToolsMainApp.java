@@ -32,11 +32,11 @@ public class DynamicToolsMainApp {
             ToolSpecification toolSpecification = ToolSpecification.builder()
                                                         .name("getNow")
                                                         .description("""
-                                                            Gets the current date and time in the user's timezone. 
+                                                            Gets the current date and time in the requested time zone.
                                                             The current date and time is returned in ISO-8601 format
                                                         """)
                                                         .parameters(JsonObjectSchema.builder()
-                                                                    .addStringProperty("userId", "The user id")
+                                                                    .addStringProperty("timeZone", "The time zone ID, for example Europe/Berlin")
                                                                     .build()
                                                         )
                                                         .build();
@@ -63,7 +63,7 @@ public class DynamicToolsMainApp {
                 .build();
 
             String r = assistant
-                .assist("I am the user id 1234 and I'd love to know my current date and time");
+                .assist("What is the current date and time in Europe/Berlin?");
             
             System.out.println(r);
 
