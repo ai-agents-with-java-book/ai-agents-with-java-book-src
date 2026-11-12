@@ -22,31 +22,31 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ToolParameterContractTest {
 
     @Test
-    void generatedSchemaUsesTheExplicitOptionalUserId() {
+    void generatedSchemaUsesTheExplicitOptionalTimeZone() {
         var specifications = ToolSpecifications.toolSpecificationsFrom(Clock.class);
         assertEquals(1, specifications.size());
         var specification = specifications.getFirst();
         assertEquals("getNow", specification.name());
-        assertEquals(Set.of("userId"), specification.parameters().properties().keySet());
-        assertFalse(specification.parameters().required().contains("userId"));
+        assertEquals(Set.of("timeZone"), specification.parameters().properties().keySet());
+        assertFalse(specification.parameters().required().contains("timeZone"));
     }
 
     @ParameterizedTest
     @NullSource
-    @ValueSource(strings = "1234")
-    void reflectiveExecutorBindsTheOptionalUserId(String userId) throws Exception {
+    @ValueSource(strings = "Europe/Berlin")
+    void reflectiveExecutorBindsTheOptionalTimeZone(String timeZone) throws Exception {
         var clock = new RecordingClock();
         var executor = new DefaultToolExecutor(clock, Clock.class.getMethod("getNow", String.class));
 
-        assertEquals("clock-result", executor.execute(request(userId), "test-memory"));
+        assertEquals("clock-result", executor.execute(request(timeZone), "test-memory"));
         assertEquals(1, clock.calls);
-        assertEquals(userId, clock.lastUserId);
+        assertEquals(timeZone, clock.lastTimeZone);
     }
 
     @ParameterizedTest
     @NullSource
-    @ValueSource(strings = "1234")
-    void lowLevelFlowBindsTheOptionalUserIdAndReturnsTheToolResult(String userId) throws Exception {
+    @ValueSource(strings = "Europe/Berlin")
+    void lowLevelFlowBindsTheOptionalTimeZoneAndReturnsTheToolResult(String timeZone) throws Exception {
         var clock = new RecordingClock();
         List<ChatRequest> requests = new ArrayList<>();
         ChatModel model = new ChatModel() {
@@ -55,7 +55,7 @@ public class ToolParameterContractTest {
                 requests.add(request);
                 return ChatResponse.builder()
                         .aiMessage(requests.size() == 1
-                                ? AiMessage.from(request(userId))
+                                ? AiMessage.from(request(timeZone))
                                 : AiMessage.from("The tool returned clock-result"))
                         .build();
             }
@@ -64,7 +64,7 @@ public class ToolParameterContractTest {
         LowLevelToolMainApp.run(clock, model);
 
         assertEquals(1, clock.calls);
-        assertEquals(userId, clock.lastUserId);
+        assertEquals(timeZone, clock.lastTimeZone);
         assertEquals(2, requests.size());
         var messages = requests.get(1).messages();
         assertEquals(3, messages.size());
@@ -76,23 +76,23 @@ public class ToolParameterContractTest {
         assertEquals("clock-result", result.text());
     }
 
-    private static ToolExecutionRequest request(String userId) {
+    private static ToolExecutionRequest request(String timeZone) {
         return ToolExecutionRequest.builder()
                 .id("clock-call")
                 .name("getNow")
-                .arguments(userId == null ? "{}" : "{\"userId\":\"1234\"}")
+                .arguments(timeZone == null ? "{}" : "{\"timeZone\":\"Europe/Berlin\"}")
                 .build();
     }
 
     // Use the production Clock method's annotation and record what reaches its receiver.
     public static class RecordingClock extends Clock {
-        String lastUserId;
+        String lastTimeZone;
         int calls;
 
         @Override
-        public String getNow(String userId) {
+        public String getNow(String timeZone) {
             calls++;
-            lastUserId = userId;
+            lastTimeZone = timeZone;
             return "clock-result";
         }
     }
