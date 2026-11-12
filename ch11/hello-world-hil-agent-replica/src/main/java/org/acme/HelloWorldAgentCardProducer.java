@@ -12,6 +12,11 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import org.a2aproject.sdk.spec.ClientCredentialsOAuthFlow;
+import org.a2aproject.sdk.spec.OAuth2SecurityScheme;
+import org.a2aproject.sdk.spec.OAuthFlows;
+import org.a2aproject.sdk.spec.SecurityRequirement;
 
 @ApplicationScoped
 public class HelloWorldAgentCardProducer {
@@ -19,9 +24,16 @@ public class HelloWorldAgentCardProducer {
     @ConfigProperty(name = "agent.url")
     String agentUrl;
 
+    @ConfigProperty(name = "quarkus.oidc.auth-server-url")
+    String issuer;
+
     @Produces
     @PublicAgentCard
     public AgentCard agentCard() {
+        var flow = new ClientCredentialsOAuthFlow(null, Map.of("openid", "Identity"),
+                issuer + "/protocol/openid-connect/token");
+        var security = OAuth2SecurityScheme.builder()
+                .flows(OAuthFlows.builder().clientCredentials(flow).build()).build();
         return AgentCard.builder()
             .name("Hello World HIL Agent")
             .description("A hello world agent with Human-in-the-Loop: pauses before transforming "
@@ -34,6 +46,9 @@ public class HelloWorldAgentCardProducer {
                 .streaming(true)
                 .pushNotifications(false)
                 .build())
+            .securitySchemes(Map.of("oauth2", security))
+            .securityRequirements(List.of(SecurityRequirement.builder()
+                .scheme("oauth2", List.of("openid")).build()))
             .defaultInputModes(Collections.singletonList("text"))
             .defaultOutputModes(Collections.singletonList("text"))
             .skills(Collections.singletonList(AgentSkill.builder()

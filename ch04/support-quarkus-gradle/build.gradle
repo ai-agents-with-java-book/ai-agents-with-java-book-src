@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'io.quarkus' version '3.33.2'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation enforcedPlatform('dev.langchain4j:langchain4j-bom:1.20.0')
+    implementation enforcedPlatform('io.quarkus.platform:quarkus-bom:3.33.2')
+    implementation 'io.quarkus:quarkus-rest'
+    implementation 'io.quarkiverse.langchain4j:quarkus-langchain4j-openai:1.13.1'
+    implementation 'org.bsc.langgraph4j:langgraph4j-core:1.8.0'
+    testImplementation 'io.quarkus:quarkus-junit'
+    testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-parameters']
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'java.util.logging.manager', 'org.jboss.logmanager.LogManager'
+}
+
+if (project.hasProperty('flow')) {
+    sourceSets.main.java.srcDir('../support-quarkus/optional-flow/src/main/java')
+    dependencies {
+        implementation 'io.quarkiverse.flow:quarkus-flow:1.2.0.CR2'
+    }
+}

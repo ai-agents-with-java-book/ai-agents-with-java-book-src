@@ -1,58 +1,56 @@
-# quarkus-client-agent
+# LangChain4j A2A client
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Use the [chapter 11 baseline](../README.md). The existing greeting interfaces and `GET /greeting` are retained. The HIL paths use authenticated POST requests and conversation handles.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## Start and resume a conversation
 
-## Running the application in dev mode
+Start `hello-world-hil-agent` on port 7777. Start this application on port 8080. Dev Services supplies Keycloak on port 11001; the HIL endpoints require a valid bearer token from that issuer. For an existing identity provider or a packaged run, set `OIDC_AUTH_SERVER_URL` to its realm/issuer endpoint and use the `quarkus-app` client ID, or override the OIDC settings for that provider.
 
-You can run your application in dev mode that enables live coding using:
-
-```shell script
-./mvnw quarkus:dev
+```sh
+./mvnw package -DskipTests
+export OIDC_AUTH_SERVER_URL=http://localhost:11001/realms/quarkus
+java -Dquarkus.http.host=127.0.0.1 -jar target/quarkus-app/quarkus-run.jar
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+The packaged command requires Keycloak to be running already. Alternatively, `./mvnw quarkus:dev` starts Dev Services. Obtain a user access token from that issuer and put it in `ALICE_TOKEN` for these requests:
 
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./mvnw package
+```sh
+curl --fail-with-body http://localhost:8080/greeting/hil \
+  -H "Authorization: Bearer $ALICE_TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data '{"text":"Hello Alice"}'
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+An input request returns `handle` and `prompt`. A direct answer returns `result`. Set `HANDLE` to the returned handle, then reply:
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+```sh
+curl --fail-with-body "http://localhost:8080/greeting/hil/$HANDLE" \
+  -H "Authorization: Bearer $ALICE_TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data '{"text":"upper"}'
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+`GreetingResource` derives the owner from the validated OIDC token's issuer and subject. `PendingReplies` stores that owner, both A2A IDs, the expiry and the submission state. Owner identity supplied in JSON is never used. The A2A IDs stay server-side. The remote HIL server in this example is the local single-user server; authentication here protects the adapter's HTTP entry points and continuation handles. The separately secured replica demonstrates enforcement at the remote agent itself.
 
-## Creating a native executable
+The default lifetime is ten minutes (`hil.continuation-ttl=PT10M`). This store is in memory and loses handles on restart; it is not shared across adapter instances. The resource rejects a handle before calling the agent when it is unknown, belongs to another caller, has expired, or has already been claimed. Claiming is atomic, so concurrent submissions cannot both invoke the agent. A repeated input request creates a fresh handle for the same owner. The old handle stays consumed.
 
-You can create a native executable using:
+| Outcome | HTTP status |
+| --- | ---: |
+| Missing or invalid authentication | 401 |
+| Unknown handle or another owner | 404 |
+| Expired handle, before expired-entry cleanup | 410 |
+| Already submitted, including an uncertain earlier result | 409 |
+| Blank text or a choice other than `upper`/`lower` | 400 |
+| Remote failure after claiming a reply | 502 |
 
-```shell script
-./mvnw package -Dnative
+Expired entries are removed as new handles are created; a removed handle returns 404. A 502 does not prove the remote task rejected the reply. Do not retry that handle or automatically create another task to repeat its effects. Inspect the remote outcome before deciding how to proceed.
+
+## Verification
+
+```sh
+./mvnw test -Dtest=ContinuationTest
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+These focused tests cover interleaved conversations, owner checks, expiry, concurrent claims, another input request, blank identity, and uncertain outcomes. They use no external identity service. Verify authentication separately through the HTTP endpoints: start one conversation as Alice and another as Bob, resume them in reverse order, then try Alice's handle with Bob's token and without a token. Only the matching owner may invoke its pending task. Two simultaneous requests with the same handle must produce one successful invocation and one 409.
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/quarkus-client-agent-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- LangChain4j Agentic ([guide](https://docs.quarkiverse.io/quarkus-langchain4j/dev/index.html)): Provides integration with LangChain4j's Agentic module
+The pre-existing `HelloWorldAgentTest` requires the basic `hello-world-agent` on port 7777, not the HIL server. Run it separately with `./mvnw test -Dtest=HelloWorldAgentTest`; Quarkus starts the configured OIDC service in test mode unless an external issuer is supplied.

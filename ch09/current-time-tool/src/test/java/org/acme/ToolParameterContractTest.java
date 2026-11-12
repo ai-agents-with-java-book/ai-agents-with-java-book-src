@@ -76,6 +76,97 @@ public class ToolParameterContractTest {
         assertEquals("clock-result", result.text());
     }
 
+    @Test
+    void batchesResultsAndPreservesEveryTurn() throws Exception {
+        var clock = new RecordingClock();
+        List<ChatRequest> calls = new ArrayList<>();
+        ChatModel model = new ChatModel() {
+            @Override
+            public ChatResponse doChat(ChatRequest request) {
+                calls.add(request);
+                AiMessage answer = switch (calls.size()) {
+                    case 1 -> AiMessage.from(call("berlin", "getNow"),
+                            call("tokyo", "getNow"));
+                    case 2 -> AiMessage.from(call("utc", "getNow"));
+                    default -> AiMessage.from("finished");
+                };
+                return ChatResponse.builder().aiMessage(answer).build();
+            }
+        };
+        assertEquals("finished", LowLevelToolMainApp.run(clock, model));
+        assertEquals(3, clock.calls);
+        assertEquals(List.of("Europe/Berlin", "Asia/Tokyo", "Europe/Berlin"),
+                clock.timeZones);
+        assertEquals(List.of(1, 4, 6), calls.stream()
+                .map(c -> c.messages().size()).toList());
+        assertEquals(calls.get(1).messages(), calls.get(2).messages().subList(0, 4));
+        assertEquals(List.of("berlin", "tokyo", "utc"), calls.get(2).messages().stream()
+                .filter(ToolExecutionResultMessage.class::isInstance)
+                .map(ToolExecutionResultMessage.class::cast)
+                .map(ToolExecutionResultMessage::id).toList());
+    }
+
+    @Test
+    void returnsAnAnswerWithoutCallingATool() throws Exception {
+        var clock = new RecordingClock();
+        int[] calls = {0};
+        ChatModel model = new ChatModel() {
+            @Override
+            public ChatResponse doChat(ChatRequest request) {
+                calls[0]++;
+                return ChatResponse.builder().aiMessage(AiMessage.from("hello")).build();
+            }
+        };
+        assertEquals("hello", LowLevelToolMainApp.run(clock, model));
+        assertEquals(1, calls[0]);
+        assertEquals(0, clock.calls);
+    }
+
+    @Test
+    void returnsAnUnknownToolResultWithTheRequestId() throws Exception {
+        var clock = new RecordingClock();
+        List<ChatRequest> calls = new ArrayList<>();
+        ChatModel model = new ChatModel() {
+            @Override
+            public ChatResponse doChat(ChatRequest request) {
+                calls.add(request);
+                return ChatResponse.builder().aiMessage(calls.size() == 1
+                        ? AiMessage.from(call("unknown", "missing"))
+                        : AiMessage.from("no tool")).build();
+            }
+        };
+        assertEquals("no tool", LowLevelToolMainApp.run(clock, model));
+        var result = assertInstanceOf(ToolExecutionResultMessage.class,
+                calls.get(1).messages().getLast());
+        assertEquals("unknown", result.id());
+        assertEquals("Unknown tool. Use an offered tool.", result.text());
+        assertEquals(0, clock.calls);
+    }
+
+    @Test
+    void stopsAtTheToolTurnLimit() {
+        var clock = new RecordingClock();
+        int[] calls = {0};
+        ChatModel model = new ChatModel() {
+            @Override
+            public ChatResponse doChat(ChatRequest request) {
+                calls[0]++;
+                return ChatResponse.builder()
+                        .aiMessage(AiMessage.from(call("again", "getNow"))).build();
+            }
+        };
+        assertEquals("Tool-turn limit reached", assertThrows(IllegalStateException.class,
+                () -> LowLevelToolMainApp.run(clock, model)).getMessage());
+        assertEquals(LowLevelToolMainApp.MAX_TOOL_TURNS, calls[0]);
+        assertEquals(LowLevelToolMainApp.MAX_TOOL_TURNS, clock.calls);
+    }
+
+    private static ToolExecutionRequest call(String id, String name) {
+        String zone = "tokyo".equals(id) ? "Asia/Tokyo" : "Europe/Berlin";
+        return ToolExecutionRequest.builder().id(id).name(name)
+                .arguments("{\"timeZone\":\"" + zone + "\"}").build();
+    }
+
     private static ToolExecutionRequest request(String timeZone) {
         return ToolExecutionRequest.builder()
                 .id("clock-call")
@@ -88,11 +179,13 @@ public class ToolParameterContractTest {
     public static class RecordingClock extends Clock {
         String lastTimeZone;
         int calls;
+        List<String> timeZones = new ArrayList<>();
 
         @Override
         public String getNow(String timeZone) {
             calls++;
             lastTimeZone = timeZone;
+            timeZones.add(timeZone);
             return "clock-result";
         }
     }
