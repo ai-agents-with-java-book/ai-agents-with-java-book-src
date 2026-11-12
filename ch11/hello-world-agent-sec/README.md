@@ -1,3 +1,23 @@
+# Chapter 11: Authenticated task ownership
+
+`CustomTaskAuthorizationProvider` requires an authenticated SDK `User` with a
+nonblank user ID before allowing task creation or recording ownership. Reads and
+writes additionally require the caller to own the task. In particular, the SDK's
+`UnauthenticatedUser` must not become an owner through its empty username.
+
+With JDK 25, run the focused regression suite from this directory:
+
+```shell
+./mvnw test -Dtest=CustomTaskAuthorizationProviderTest
+```
+
+These are plain JUnit tests of the authorization provider: no running Quarkus
+server, Keycloak, Docker, or model endpoint is needed. They cover missing and
+anonymous users, blank IDs, owner/non-owner access, unrecorded tasks, and ownership
+that cannot be reassigned by a later request. They do not test token validation
+or the HTTP authentication integration. Maven may download dependencies on the
+first run.
+
 # hello-world-agent
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.

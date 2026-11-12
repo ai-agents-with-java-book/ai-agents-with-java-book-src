@@ -7,7 +7,6 @@ import org.a2aproject.sdk.server.auth.TaskOperation;
 import org.a2aproject.sdk.spec.A2AError;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ApplicationScoped
@@ -54,14 +53,18 @@ public class CustomTaskAuthorizationProvider implements TaskAuthorizationProvide
     }
 
     /**
-     * Helper to extract authenticated subject/user ID from the ServerCallContext or SecurityContext.
+     * Returns a nonblank user ID only for an authenticated SDK user.
      */
     private String extractUserId(ServerCallContext context) {
         if (context == null) {
             return null;
         }
 
-        // Extract principal/subject claim injected into ServerCallContext attributes by OIDC/OAuth filter
-        return context.getUser().getUsername();
+        var user = context.getUser();
+        if (user == null || !user.isAuthenticated()) {
+            return null;
+        }
+        String userId = user.getUsername();
+        return userId == null || userId.isBlank() ? null : userId;
     }
 }

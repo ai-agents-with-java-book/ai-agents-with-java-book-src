@@ -28,7 +28,7 @@ public class Clock {
             The current date and time is returned in ISO-8601 format
         """
     )
-    public String getNow(@P(value = "The user id", required = false) 
+    public String getNow(@P(name = "userId", value = "The user id", required = false)
                                 String userId) {
 
         Retry retry = registry.retry("toolGetNow", config);

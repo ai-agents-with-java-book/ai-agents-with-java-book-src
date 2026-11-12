@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
@@ -23,7 +22,7 @@ import dev.langchain4j.data.message.UserMessage;
 
 public class LowLevelToolMainApp {
     
-    public static void main(String[] args) throws NoSuchMethodException, SecurityException, JsonMappingException, JsonProcessingException {
+    public static void main(String[] args) throws JsonProcessingException {
         
             Clock clock = new Clock();
 
@@ -33,6 +32,10 @@ public class LowLevelToolMainApp {
                 .modelName(GPT_4_O_MINI)
                 .build();
 
+            run(clock, chatModel);
+    }
+
+    static void run(Clock clock, ChatModel chatModel) throws JsonProcessingException {
             List<ToolSpecification> toolSpecifications = ToolSpecifications.toolSpecificationsFrom(Clock.class);
 
             UserMessage userMessage = UserMessage.from("I am the user id 1234 and I'd love to know my current date and time");
@@ -56,7 +59,7 @@ public class LowLevelToolMainApp {
                         System.out.println(arguments);
                         Map<String, String> parsedArguments = mapper.readValue(arguments, Map.class);
                         
-                        String result = clock.getNow(parsedArguments.get("arg0"));
+                        String result = clock.getNow(parsedArguments.get("userId"));
 
                         ToolExecutionResultMessage toolExecutionResultMessage = ToolExecutionResultMessage.from(toolExecutionRequest, result);
                         ChatRequest request2 = ChatRequest.builder()
